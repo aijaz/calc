@@ -14,6 +14,10 @@
 		B42647EE1F99A18600AF3E1D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B42647EC1F99A18600AF3E1D /* LaunchScreen.storyboard */; };
 		B42647F91F99A18600AF3E1D /* CalcTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42647F81F99A18600AF3E1D /* CalcTests.swift */; };
 		B42648041F99A18600AF3E1D /* CalcUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648031F99A18600AF3E1D /* CalcUITests.swift */; };
+		B42648141F99A23E00AF3E1D /* CalcFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648131F99A23E00AF3E1D /* CalcFormatter.swift */; };
+		B42648151F9A322300AF3E1D /* CalcFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648131F99A23E00AF3E1D /* CalcFormatter.swift */; };
+		B42648191F9A980C00AF3E1D /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648181F9A980C00AF3E1D /* State.swift */; };
+		B426481A1F9A980C00AF3E1D /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648181F9A980C00AF3E1D /* State.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,8 @@
 		B42647FF1F99A18600AF3E1D /* CalcUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalcUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B42648031F99A18600AF3E1D /* CalcUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalcUITests.swift; sourceTree = "<group>"; };
 		B42648051F99A18600AF3E1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B42648131F99A23E00AF3E1D /* CalcFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalcFormatter.swift; sourceTree = "<group>"; };
+		B42648181F9A980C00AF3E1D /* State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +103,8 @@
 		B42647E21F99A18600AF3E1D /* Calc */ = {
 			isa = PBXGroup;
 			children = (
+				B42648171F9A979C00AF3E1D /* StateMachine */,
+				B42648121F99A21200AF3E1D /* Utility */,
 				B42647E31F99A18600AF3E1D /* AppDelegate.swift */,
 				B42647E51F99A18600AF3E1D /* ViewController.swift */,
 				B42647E71F99A18600AF3E1D /* Main.storyboard */,
@@ -123,6 +131,22 @@
 				B42648051F99A18600AF3E1D /* Info.plist */,
 			);
 			path = CalcUITests;
+			sourceTree = "<group>";
+		};
+		B42648121F99A21200AF3E1D /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				B42648131F99A23E00AF3E1D /* CalcFormatter.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
+		B42648171F9A979C00AF3E1D /* StateMachine */ = {
+			isa = PBXGroup;
+			children = (
+				B42648181F9A980C00AF3E1D /* State.swift */,
+			);
+			path = StateMachine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,8 +283,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B42648141F99A23E00AF3E1D /* CalcFormatter.swift in Sources */,
 				B42647E61F99A18600AF3E1D /* ViewController.swift in Sources */,
 				B42647E41F99A18600AF3E1D /* AppDelegate.swift in Sources */,
+				B42648191F9A980C00AF3E1D /* State.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +295,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B42647F91F99A18600AF3E1D /* CalcTests.swift in Sources */,
+				B42648151F9A322300AF3E1D /* CalcFormatter.swift in Sources */,
+				B426481A1F9A980C00AF3E1D /* State.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

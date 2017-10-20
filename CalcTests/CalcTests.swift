@@ -21,9 +21,39 @@ class CalcTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
+    func testFormat() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+
+        assertNumber(1, "1")
+        assertNumber(0, "0")
+        assertNumber(-1, "-1")
+        assertNumber(123456789, "123,456,789")
+        assertNumber(-123456789, "-123,456,789")
+        assertNumber(999_999_999, "999,999,999")
+        assertNumber(-999_999_999, "-999,999,999")
+
+        assertNumber(1.5, "1.5")
+        assertNumber(0.5, "0.5")
+        assertNumber(-1.5, "-1.5")
+        assertNumber(123456789.4, "123,456,789")
+        assertNumber(-123456789.4, "-123,456,789")
+        assertNumber(999_999_999.4, "999,999,999")
+        assertNumber(-999_999_999.4, "-999,999,999")
+        assertNumber(123456789.5, "123,456,790")
+        assertNumber(-123456789.5, "-123,456,790")
+
+        assertNumber(999_999_999.5, "1e09")
+        assertNumber(-999_999_999.5, "-1e09")
+
+
+    }
+
+    func assertNumber(_ number: Double, _ str: String?) {
+        let s = CalcFormatter.string(for: number)
+        NSLog("Testing \(number) Got '\(s ?? "nil")', expected \(str ?? "nil")")
+        XCTAssert(s == str)
+
     }
     
     func testPerformanceExample() {
