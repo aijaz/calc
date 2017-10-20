@@ -49,6 +49,18 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testNumberEntry() {
+        let machine = StateMachine()
+
+        machine.perform(transition: .digit(1))
+        XCTAssert(machine.displayed == 1)
+        machine.perform(transition: .digit(2))
+        XCTAssert(machine.displayed == 12)
+        machine.perform(transition: .digit(3))
+        XCTAssert(machine.displayed == 123)
+
+    }
+
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)
         NSLog("Testing \(number) Got '\(s ?? "nil")', expected \(str ?? "nil")")

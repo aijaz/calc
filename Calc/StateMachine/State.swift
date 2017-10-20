@@ -66,7 +66,7 @@ enum Transition: Hashable {
         }
     }
 
-    case digit(Int)
+    case digit(Double)
     case calcOperator(CalcOperator)
     case transformer(Transformer)
     case equal
@@ -82,7 +82,7 @@ enum State {
     case acceptingOperand2
 }
 
-typealias TransitionFunction = (_ m: StateMachine)->()
+typealias TransitionFunction = (_ m: StateMachine, _ t: Transition)->()
 
 class TransitionDestination {
     let destinationState: State
@@ -97,19 +97,44 @@ class TransitionDestination {
 typealias TransitionMap = [Transition: TransitionDestination]
 
 class StateMachine {
-    var saved: Double?
-    var displayed: Double?
+    var saved: Double
+    var displayed: Double
     var str: String {
-        guard let displayed  = displayed, let s = CalcFormatter.string(for: displayed) else { return "Error" }
+        guard let s = CalcFormatter.string(for: displayed) else { return "Error" }
         return s
     }
-    var state: State?
+    var state: State
     var transitionsByState = [State: TransitionMap]()
 
+    init() {
+        saved = 0
+        displayed = 0
+        state = .steady
+
+        let digitFunction: TransitionFunction = { (machine, transition) in
+            if case let Transition.digit(digit) = transition {
+                NSLog("Transitioning with \(digit)")
+                machine.displayed = machine.displayed * 10 + digit
+            }
+        }
+
+        add(transition: .digit(1), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(2), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(3), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(4), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(5), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(6), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(7), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(8), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(9), from: .steady, to: .steady, performing: digitFunction)
+        add(transition: .digit(0), from: .steady, to: .steady, performing: digitFunction)
+
+    }
+
     func perform(transition: Transition) {
-        if let map = transitionsByState[state!],
+        if let map = transitionsByState[state],
             let destination = map[transition] {
-            destination.function(self)
+            destination.function(self, transition)
             state = destination.destinationState
         }
     }
