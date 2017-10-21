@@ -190,7 +190,7 @@ class Calculator {
 
 
         // =
-        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1) { (machine, transition) in
+        let equalFunction: TransitionFunction<State, Transition> = { (machine, transition) in
             var answer: Double = 0
             if let lastOp = self.lastOp {
                 switch lastOp {
@@ -215,6 +215,10 @@ class Calculator {
                 self.displayed = 0
             }
         }
+
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunction )
+        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunction )
+        machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: equalFunction )
 
 
 
