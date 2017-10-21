@@ -72,7 +72,163 @@ class CalcTests: XCTestCase {
         XCTAssert(c.displayed == 123.4)
         XCTAssert(c.str == "123.4")
 
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.40")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.404)
+        XCTAssert(c.str == "123.404")
     }
+
+    func testStartingWithPoint() {
+        let c = Calculator()
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 0.4)
+        XCTAssert(c.str == "0.4")
+
+    }
+
+    func testStartingWithZero() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.40")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.404)
+        XCTAssert(c.str == "123.404")
+    }
+
+    func testStartingWithZeroPoint() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 0.4)
+        XCTAssert(c.str == "0.4")
+
+    }
+
+    func testStartingWithZeroZeroPoint() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 0.4)
+        XCTAssert(c.str == "0.4")
+
+    }
+
+    func testMultiplePoint() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.40")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.404)
+        XCTAssert(c.str == "123.404")
+
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123.404)
+        XCTAssert(c.str == "123.404")
+
+        c.keyPressed(.digit(9))
+        XCTAssert(c.displayed == 123.4049)
+        XCTAssert(c.str == "123.4049")
+
+
+    }
+
+
 
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)

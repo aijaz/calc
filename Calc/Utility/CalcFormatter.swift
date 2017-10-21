@@ -45,3 +45,14 @@ struct CalcFormatter {
 
     }
 }
+
+
+extension String {
+    var digits: String {
+        return components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+    }
+    var numDigits: Int {
+        return components(separatedBy: CharacterSet.decimalDigits.inverted).count
+    }
+}
+
