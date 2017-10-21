@@ -265,6 +265,35 @@ class CalcTests: XCTestCase {
         XCTAssert(c.displayed == 15)
         XCTAssert(c.str == "15")
 
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 30)
+        XCTAssert(c.str == "30")
+
+    }
+
+    func testRepeated() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 20)
+        XCTAssert(c.str == "20")
+
+
 
     }
 
