@@ -228,6 +228,46 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testZeroZero() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+    }
+
+    func testAdd() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+
+
+    }
+
 
 
     func assertNumber(_ number: Double, _ str: String?) {

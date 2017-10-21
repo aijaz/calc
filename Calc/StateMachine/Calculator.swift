@@ -76,6 +76,9 @@ enum State {
     case enteringBeforePoint
     case enteringAfterPoint
     case acceptedOperand1
+    case nothingEntered2
+    case entering2BeforePoint
+    case entering2AfterPoint
     case primed
     case acceptedOperand2
 }
@@ -93,6 +96,7 @@ class Calculator {
     var entered: Double {
         return Double(str)!
     }
+    var lastOp: CalcOperator?
 
     let machine = StateMachine<State, Transition>(state: .nothingEntered)
 
@@ -141,6 +145,74 @@ class Calculator {
                     self.plainStr = "\(self.plainStr)\(i)"
                     self.displayed = Double(self.plainStr)!
                 }
+            }
+        }
+
+        let ops: [CalcOperator] = [.add, .subtract, .multiply, .divide]
+        for oper in ops {
+            machine.add(transition: .calcOperator(oper), from: .enteringBeforePoint, to: .acceptedOperand1) { (machine, transition) in
+                self.lastOp = oper
+                self.saved = self.displayed
+            }
+            machine.add(transition: .calcOperator(oper), from: .enteringAfterPoint, to: .acceptedOperand1) { (machine, transition) in
+                self.lastOp = oper
+                self.saved = self.displayed
+            }
+        }
+        machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2) { (machine, transition) in
+            self.str = "0"
+            self.plainStr = self.str
+            self.displayed = Double(self.plainStr)!
+        }
+        for i in 1 ... 9 {
+            NSLog("i is \(i)")
+            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1, to: .entering2BeforePoint) { (machine, transition) in
+                self.str = "\(i)"
+                self.plainStr = self.str
+                self.displayed = Double(self.plainStr)!
+            }
+            machine.add(transition: .digit(Double(i)), from: .nothingEntered2, to: .entering2BeforePoint) { (machine, transition) in
+                self.str = "\(i)"
+                self.plainStr = self.str
+                self.displayed = Double(self.plainStr)!
+            }
+        }
+        machine.add(transition: .point, from: .acceptedOperand1, to: .entering2AfterPoint) { (machine, transition) in
+            self.plainStr = "0."
+            self.str = "0."
+            self.displayed = Double(self.plainStr)!
+        }
+        machine.add(transition: .point, from: .nothingEntered2, to: .entering2AfterPoint) { (machine, transition) in
+            self.plainStr = "\(self.plainStr)."
+            self.str = "\(self.str)."
+            self.displayed = Double(self.plainStr)!
+        }
+
+
+        // =
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1) { (machine, transition) in
+            var answer: Double = 0
+            if let lastOp = self.lastOp {
+                switch lastOp {
+                case .add:
+                    answer = self.saved + self.displayed
+                case .subtract:
+                    answer = self.saved - self.displayed
+                case .multiply:
+                    answer = self.saved * self.displayed
+                case .divide:
+                    answer = self.saved / self.displayed
+                }
+            }
+            if let str = CalcFormatter.string(for: answer) {
+                self.plainStr = "\(answer)"
+                self.displayed = answer
+                self.str = str
+            }
+            else {
+                self.str = "Error"
+                self.plainStr = "Error"
+                self.displayed = 0
             }
         }
 
