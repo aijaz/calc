@@ -50,14 +50,14 @@ class CalcTests: XCTestCase {
     }
 
     func testNumberEntry() {
-        let machine = StateMachine()
+        let c = Calculator()
 
-        machine.perform(transition: .digit(1))
-        XCTAssert(machine.displayed == 1)
-        machine.perform(transition: .digit(2))
-        XCTAssert(machine.displayed == 12)
-        machine.perform(transition: .digit(3))
-        XCTAssert(machine.displayed == 123)
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 12)
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 123)
 
     }
 
