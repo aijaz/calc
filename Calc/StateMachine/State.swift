@@ -55,8 +55,8 @@ class StateMachine<StateType:Hashable, TransitionType:Hashable> {
 
     func add(transition: TransitionType, from: StateType, to: StateType, performing: @escaping TransitionFunction<StateType, TransitionType>) {
         let destination = TransitionDestination(destinationState: to, function: performing)
-        if var map = transitionsByState[from] {
-            map[transition] = destination
+        if let _ = transitionsByState[from] {
+            transitionsByState[from]![transition] = destination
         }
         else {
             transitionsByState[from] = TransitionMap()

@@ -54,10 +54,23 @@ class CalcTests: XCTestCase {
 
         c.keyPressed(.digit(1))
         XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
         c.keyPressed(.digit(2))
         XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
+
         c.keyPressed(.digit(3))
         XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123")
+        
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 123)
+        XCTAssert(c.str == "123.")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 123.4)
+        XCTAssert(c.str == "123.4")
 
     }
 

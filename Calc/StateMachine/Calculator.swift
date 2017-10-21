@@ -35,6 +35,8 @@ enum Transition: Hashable {
             return 5
         case .allClear:
             return 6
+        case .point:
+            return 7
         }
     }
 
@@ -52,6 +54,8 @@ enum Transition: Hashable {
             return true
         case (.allClear, allClear):
             return true
+        case (.point, .point):
+            return true
         default:
             return false
         }
@@ -63,6 +67,7 @@ enum Transition: Hashable {
     case equal
     case clear
     case allClear
+    case point
 
 }
 
@@ -79,20 +84,41 @@ enum State {
 class Calculator {
     var saved: Double
     var displayed: Double
+    var pointEntered: Bool
+    var numFractionalDigits: Int
     var str: String {
         guard let s = CalcFormatter.string(for: displayed) else { return "Error" }
+        if self.pointEntered && self.numFractionalDigits == 0 {
+            return "\(s)."
+        }
         return s
     }
+
     let machine = StateMachine<State, Transition>(state: .steady)
 
     init() {
         saved = 0
         displayed = 0
+        pointEntered = false
+        numFractionalDigits = 0
+
+
+
 
         let digitFunction: TransitionFunction<State, Transition> = { (machine, transition) in
             if case let Transition.digit(digit) = transition {
                 NSLog("Transitioning with \(digit)")
-                self.displayed = self.displayed * 10 + digit
+                if self.pointEntered {
+                    self.numFractionalDigits += 1
+                    var multiplicant:Double = 1.0
+                    for _ in 0 ..< self.numFractionalDigits {
+                        multiplicant *= Double(0.1)
+                    }
+                    self.displayed += (digit * multiplicant)
+                }
+                else {
+                    self.displayed = self.displayed * 10 + digit
+                }
             }
         }
 
@@ -100,6 +126,14 @@ class Calculator {
             NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .steady, to: .steady, performing: digitFunction)
         }
+
+        let pointFunction: TransitionFunction<State, Transition> = { (machine, transition) in
+            if self.pointEntered { return }
+            self.pointEntered = true
+
+        }
+        machine.add(transition: .point, from: .steady, to: .steady, performing: pointFunction)
+
 
     }
 
