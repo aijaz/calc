@@ -429,6 +429,162 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testNegZero() {
+        let c = Calculator()
+
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "-0")
+
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+    }
+
+    func testSignChangeFirstOperand1Digit1Digit() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == -5)
+        XCTAssert(c.str == "-5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+    }
+
+    func testSignChangeFirstOperand1Digit1DigitPre() {
+        let c = Calculator()
+
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == -5)
+        XCTAssert(c.str == "-5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+    }
+
+    func testSignChangeFirstOperand1Digit1DigitPreMultOdd() {
+        let c = Calculator()
+
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == -5)
+        XCTAssert(c.str == "-5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+    }
+
+    func testSignChangeFirstOperand1Digit1DigitPreMultEven() {
+        let c = Calculator()
+
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 13)
+        XCTAssert(c.str == "13")
+    }
+
+
+    func testSignChangeSecondOperand1Digit1Digit() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -3)
+        XCTAssert(c.str == "-3")
+    }
+
+    func testSignChangeSecondOperand1Digit1DigitPre() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == -8)
+        XCTAssert(c.str == "-8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -3)
+        XCTAssert(c.str == "-3")
+    }
+
+    func testSignChangeSecondOperand1Digit1DigitPreMultOdd() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == -8)
+        XCTAssert(c.str == "-8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -3)
+        XCTAssert(c.str == "-3")
+    }
+
+    func testSignChangeSecondOperand1Digit1DigitPreMultEven() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 13)
+        XCTAssert(c.str == "13")
+    }
+
+
 
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)

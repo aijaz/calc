@@ -73,10 +73,12 @@ enum Transition: Hashable {
 
 enum State {
     case nothingEntered
+    case nothingEnteredNegative
     case enteringBeforePoint
     case enteringAfterPoint
     case acceptedOperand1
     case nothingEntered2
+    case nothingEntered2Negative
     case entering2BeforePoint
     case entering2AfterPoint
     case primed
@@ -140,24 +142,45 @@ class Calculator {
             }
         }
 
+        let toggleSignOfDisplayed: TransitionFunction<State, Transition> = { (machine, transition) in
+            self.displayed *= -1
+            self.plainStr = "\(self.displayed)"
+            self.str = CalcFormatter.string(for: self.displayed)!
+        }
+
+        machine.add(transition: .transformer(.signChange), from: .nothingEntered, to: .nothingEnteredNegative) { (machine, transition) in
+            self.str = "-0"
+        }
+        machine.add(transition: .transformer(.signChange), from: .nothingEnteredNegative, to: .nothingEntered) { (machine, transition) in
+            self.str = "0"
+        }
+
         for i in 1 ... 9 {
             NSLog("i is \(i)")
-            machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint) { (machine, transition) in
-                self.str = "\(i)"
             machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint, performing: addFirstDigit)
+
+            machine.add(transition: .digit(Double(i)), from: .nothingEnteredNegative, to: .enteringBeforePoint) { (machine, transition) in
+                self.str = "-\(i)"
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
         }
         machine.add(transition: .point, from: .nothingEntered, to: .enteringAfterPoint) { (machine, transition) in
-            self.plainStr = "\(self.plainStr)."
-            self.str = "\(self.str)."
+            self.plainStr = "0."
+            self.str = "0."
             self.displayed = Double(self.plainStr)!
         }
+        machine.add(transition: .point, from: .nothingEnteredNegative, to: .enteringAfterPoint) { (machine, transition) in
+            self.plainStr = "-0."
+            self.str = "-0."
+            self.displayed = Double(self.plainStr)!
+        }
+
         for i in 0 ... 9 {
             NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: addDigitToOperand)
-            }
+            machine.add(transition: .transformer(.signChange), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: toggleSignOfDisplayed)
+
         }
         machine.add(transition: .point, from: .enteringBeforePoint, to: .enteringAfterPoint) { (machine, transition) in
             self.plainStr = "\(self.plainStr)."
@@ -166,7 +189,7 @@ class Calculator {
         }
         for i in 0 ... 9 {
             machine.add(transition: .digit(Double(i)), from: .enteringAfterPoint, to: .enteringAfterPoint, performing: addDigitToOperandAfterPoint)
-            }
+            machine.add(transition: .transformer(.signChange), from: .enteringAfterPoint, to: .enteringAfterPoint, performing: toggleSignOfDisplayed)
         }
 
         let ops: [CalcOperator] = [.add, .subtract, .multiply, .divide]
@@ -187,10 +210,27 @@ class Calculator {
                 self.lastOperand = nil
             }
         }
+
+
         machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2) { (machine, transition) in
             self.str = "0"
             self.plainStr = self.str
-            self.displayed = Double(self.plainStr)!
+            self.displayed = 0
+        }
+        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1, to: .nothingEntered2Negative) { (machine, transition) in
+            self.str = "-0"
+            self.plainStr = self.str
+            self.displayed = 0
+        }
+        machine.add(transition: .transformer(.signChange), from: .nothingEntered2, to: .nothingEntered2Negative) { (machine, transition) in
+            self.str = "-0"
+            self.plainStr = self.str
+            self.displayed = 0
+        }
+        machine.add(transition: .transformer(.signChange), from: .nothingEntered2Negative, to: .nothingEntered2) { (machine, transition) in
+            self.str = "0"
+            self.plainStr = self.str
+            self.displayed = 0
         }
         for i in 1 ... 9 {
             NSLog("i is \(i)")
@@ -201,6 +241,11 @@ class Calculator {
             }
             machine.add(transition: .digit(Double(i)), from: .nothingEntered2, to: .entering2BeforePoint) { (machine, transition) in
                 self.str = "\(i)"
+                self.plainStr = self.str
+                self.displayed = Double(self.plainStr)!
+            }
+            machine.add(transition: .digit(Double(i)), from: .nothingEntered2Negative, to: .entering2BeforePoint) { (machine, transition) in
+                self.str = "-\(i)"
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
@@ -219,8 +264,7 @@ class Calculator {
         for i in 0 ... 9 {
             NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: addDigitToOperand)
-            machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint) { (machine, transition) in
-            }
+            machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: toggleSignOfDisplayed)
 
         }
         machine.add(transition: .point, from: .entering2BeforePoint, to: .entering2AfterPoint) { (machine, transition) in
@@ -230,8 +274,7 @@ class Calculator {
         }
         for i in 0 ... 9 {
             machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: addDigitToOperandAfterPoint)
-            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint) { (machine, transition) in
-            }
+            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: toggleSignOfDisplayed)
         }
 
 
