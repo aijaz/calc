@@ -271,6 +271,43 @@ class CalcTests: XCTestCase {
         c.keyPressed(.equal)
         XCTAssert(c.displayed == 30)
         XCTAssert(c.str == "30")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 45)
+        XCTAssert(c.str == "45")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 60)
+        XCTAssert(c.str == "60")
+
+    }
+
+    func testImplicit() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(3))
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+
+        c.keyPressed(.digit(2))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.digit(4))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 7)
+        XCTAssert(c.str == "7")
+
+        c.keyPressed(.digit(5))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+
+        c.keyPressed(.digit(9))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
 
     }
 
@@ -292,8 +329,81 @@ class CalcTests: XCTestCase {
         c.keyPressed(.equal)
         XCTAssert(c.displayed == 20)
         XCTAssert(c.str == "20")
+    }
 
+    func testDecimalRepeated() {
+        let c = Calculator()
 
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1.")
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 1.5)
+        XCTAssert(c.str == "1.5")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 1.5)
+        XCTAssert(c.str == "1.5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 4.5)
+        XCTAssert(c.str == "4.5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+
+    }
+
+    func testMultiplicationRepeated() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.calcOperator(.multiply))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 25)
+        XCTAssert(c.str == "25")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 125)
+        XCTAssert(c.str == "125")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 625)
+        XCTAssert(c.str == "625")
+
+    }
+
+    func testSubtractionRepeated() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.calcOperator(.subtract))
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 2)
+        XCTAssert(c.str == "2")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 2)
+        XCTAssert(c.str == "2")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -2)
+        XCTAssert(c.str == "-2")
 
     }
 

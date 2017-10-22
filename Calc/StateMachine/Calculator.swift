@@ -87,7 +87,8 @@ enum State {
 
 
 class Calculator {
-    var saved: Double
+    var implicit: Double
+    var lastOperand: Double?
     var pointEntered: Bool
     var numFractionalDigits: Int
     var str: String
@@ -96,17 +97,18 @@ class Calculator {
     var entered: Double {
         return Double(str)!
     }
-    var lastOp: CalcOperator?
+    var lastOperator: CalcOperator?
 
     let machine = StateMachine<State, Transition>(state: .nothingEntered)
 
     init() {
-        saved = 0
+        implicit = 0
         displayed = 0
         pointEntered = false
         numFractionalDigits = 0
         str = "0"
         plainStr = "0"
+
 
         for i in 1 ... 9 {
             NSLog("i is \(i)")
@@ -151,12 +153,19 @@ class Calculator {
         let ops: [CalcOperator] = [.add, .subtract, .multiply, .divide]
         for oper in ops {
             machine.add(transition: .calcOperator(oper), from: .enteringBeforePoint, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOp = oper
-                self.saved = self.displayed
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
             }
             machine.add(transition: .calcOperator(oper), from: .enteringAfterPoint, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOp = oper
-                self.saved = self.displayed
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
+            machine.add(transition: .calcOperator(oper), from: .acceptedOperand1, to: .acceptedOperand1) { (machine, transition) in
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
             }
         }
         machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2) { (machine, transition) in
@@ -192,16 +201,20 @@ class Calculator {
         // =
         let equalHelper = { () in
             var answer: Double = 0
-            if let lastOp = self.lastOp {
+            var operand2 = self.displayed
+//            if let op = self.lastOperand {
+//                operand2 = op
+//            }
+            if let lastOp = self.lastOperator {
                 switch lastOp {
                 case .add:
-                    answer = self.saved + self.displayed
+                    answer = self.implicit + operand2
                 case .subtract:
-                    answer = self.saved - self.displayed
+                    answer = self.implicit - operand2
                 case .multiply:
-                    answer = self.saved * self.displayed
+                    answer = self.implicit * operand2
                 case .divide:
-                    answer = self.saved / self.displayed
+                    answer = self.implicit / operand2
                 }
             }
             if let str = CalcFormatter.string(for: answer) {
@@ -215,18 +228,58 @@ class Calculator {
                 self.displayed = 0
             }
         }
-        let equalFunction: TransitionFunction<State, Transition> = { (machine, transition) in
-            equalHelper()
+        let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
+//            equalHelper()
+//            if let lo = self.lastOperand {
+//                self.implicit = lo
+//            }
+
+            if self.lastOperand == nil {
+                equalHelper()
+                return
+            }
+            var answer: Double = 0
+            if let lastOp = self.lastOperator, let lastOperand = self.lastOperand {
+                switch lastOp {
+                case .add:
+                    answer = self.displayed + lastOperand
+                case .subtract:
+                    answer = self.displayed - lastOperand
+                case .multiply:
+                    answer = self.displayed * lastOperand
+                case .divide:
+                    answer = self.displayed / lastOperand
+                }
+            }
+            if let str = CalcFormatter.string(for: answer) {
+                self.plainStr = "\(answer)"
+                self.displayed = answer
+                self.str = str
+            }
+            else {
+                self.str = "Error"
+                self.plainStr = "Error"
+                self.displayed = 0
+            }
         }
 
-        let equalFunctionChangingSaved: TransitionFunction<State, Transition> = { (machine, transition) in
+        let equalFunctionChangingImplicit: TransitionFunction<State, Transition> = { (machine, transition) in
+            self.lastOperand = self.displayed
+
             equalHelper()
-            self.saved = self.displayed
+//            if let lo = self.lastOperand {
+//                self.implicit = lo
+//            }
+//            else {
+//                self.implicit = self.displayed
+//                self.lastOperand = oldDisplayed
+//            }
         }
 
-        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingSaved )
-        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingSaved )
-        machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: equalFunction )
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingImplicit )
+        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingImplicit )
+        machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
+
 
 
 
