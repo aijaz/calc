@@ -407,6 +407,27 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testMultipleNumberAddition() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 82)
+        XCTAssert(c.str == "82")
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.digit(2))
+        XCTAssert(c.displayed == 82)
+        XCTAssert(c.str == "82")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 164)
+        XCTAssert(c.str == "164")
+
+    }
 
 
     func assertNumber(_ number: Double, _ str: String?) {

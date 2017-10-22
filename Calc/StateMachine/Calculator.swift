@@ -198,6 +198,39 @@ class Calculator {
             self.displayed = Double(self.plainStr)!
         }
 
+        for i in 0 ... 9 {
+            NSLog("i is \(i)")
+            machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint) { (machine, transition) in
+                let tempStr = "\(self.plainStr)\(i)"
+                if tempStr.numDigits <= 9 {
+                    self.plainStr = tempStr
+                    self.str = CalcFormatter.string(for: Double(self.plainStr)!)!
+                    self.displayed = Double(self.plainStr)!
+                }
+            }
+            machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint) { (machine, transition) in
+            }
+
+        }
+        machine.add(transition: .point, from: .entering2BeforePoint, to: .entering2AfterPoint) { (machine, transition) in
+            self.plainStr = "\(self.plainStr)."
+            self.str = "\(self.str)."
+            self.displayed = Double(self.plainStr)!
+        }
+        for i in 0 ... 9 {
+            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint) { (machine, transition) in
+                let tempStr = "\(self.plainStr)\(i)"
+                if tempStr.numDigits <= 9 {
+                    self.str = "\(self.str)\(i)"
+                    self.plainStr = "\(self.plainStr)\(i)"
+                    self.displayed = Double(self.plainStr)!
+                }
+            }
+            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint) { (machine, transition) in
+            }
+        }
+
+
 
         // =
         let equalHelper = { () in
