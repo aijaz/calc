@@ -76,11 +76,13 @@ enum State {
     case nothingEnteredNegative
     case enteringBeforePoint
     case enteringAfterPoint
+    case doneEntering
     case acceptedOperand1
     case nothingEntered2
     case nothingEntered2Negative
     case entering2BeforePoint
     case entering2AfterPoint
+    case doneEntering2
     case primed
     case acceptedOperand2
 }
@@ -267,19 +269,15 @@ class Calculator {
         }
 
         for i in 0 ... 9 {
-            NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: addDigitToOperand)
             machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: toggleSignOfDisplayed)
-
+            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: addDigitToOperandAfterPoint)
+            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: toggleSignOfDisplayed)
         }
         machine.add(transition: .point, from: .entering2BeforePoint, to: .entering2AfterPoint) { (machine, transition) in
             self.plainStr = "\(self.plainStr)."
             self.str = "\(self.str)."
             self.displayed = Double(self.plainStr)!
-        }
-        for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: addDigitToOperandAfterPoint)
-            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: toggleSignOfDisplayed)
         }
 
 
@@ -334,7 +332,41 @@ class Calculator {
         machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
 
 
+        // Transitions for Percentage
+        machine.add(transition: .transformer(.percent), from: .nothingEnteredNegative, to: .nothingEntered) { (_, _) in
+            self.displayed = 0
+            self.str = "0"
+            self.plainStr = "0"
+        }
 
+        machine.add(transition: .transformer(.percent), from: .enteringBeforePoint, to: .doneEntering) { (_, _) in
+            self.displayed /= 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
+        }
+        machine.add(transition: .transformer(.percent), from: .enteringAfterPoint, to: .doneEntering) { (_, _) in
+            self.displayed /= 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
+        }
+        for oper in ops {
+            machine.add(transition: .calcOperator(oper), from: .doneEntering, to: .acceptedOperand1) { (machine, transition) in
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
+        }
+        machine.add(transition: .transformer(.percent), from: .entering2BeforePoint, to: .doneEntering2) { (_, _) in
+            self.displayed = self.implicit * self.displayed / 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
+        }
+        machine.add(transition: .transformer(.percent), from: .entering2AfterPoint, to: .doneEntering2) { (_, _) in
+            self.displayed = self.implicit * self.displayed / 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
+        }
+        machine.add(transition: .equal, from: .doneEntering2, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
 
 
 

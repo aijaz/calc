@@ -601,6 +601,91 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testPercentageNEN_NE() {
+        let c = Calculator()
+
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.transformer(.percent))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+    }
+
+    func testPctFirstOperand() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 55)
+        XCTAssert(c.str == "55")
+        c.keyPressed(.transformer(.percent))
+        XCTAssert(c.displayed == 0.55)
+        XCTAssert(c.str == "0.55")
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 8.55)
+        XCTAssert(c.str == "8.55")
+    }
+
+    func testPctSecondOperandEqual() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 8)
+        XCTAssert(c.str == "8")
+        c.keyPressed(.digit(8))
+        XCTAssert(c.displayed == 88)
+        XCTAssert(c.str == "88")
+        c.keyPressed(.transformer(.percent))
+        XCTAssert(c.displayed == 4.4)
+        XCTAssert(c.str == "4.4")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 9.4)
+        XCTAssert(c.str == "9.4")
+
+
+    }
+
+    func testPctSecondOperandEqualRepeatedly() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 55)
+        XCTAssert(c.str == "55")
+        c.keyPressed(.transformer(.percent))
+        XCTAssert(c.displayed == 5.5)
+        XCTAssert(c.str == "5.5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15.5)
+        XCTAssert(c.str == "15.5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 21)
+        XCTAssert(c.str == "21")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 26.5)
+        XCTAssert(c.str == "26.5")
+
+
+    }
+
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)
         NSLog("Testing \(number) Got '\(s ?? "nil")', expected \(str ?? "nil")")
