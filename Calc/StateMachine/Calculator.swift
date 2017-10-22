@@ -110,11 +110,41 @@ class Calculator {
         str = "0"
         plainStr = "0"
 
+        let addFirstDigit: TransitionFunction<State, Transition> = { (machine, transition) in
+            if case let .digit(digit) = transition {
+                self.str = "\(Int(digit))"
+                self.plainStr = self.str
+                self.displayed = Double(self.plainStr)!
+            }
+        }
+
+        let addDigitToOperand: TransitionFunction<State, Transition> = { (machine, transition) in
+            if case let .digit(digit) = transition {
+                let tempStr = "\(self.plainStr)\(Int(digit))"
+                if tempStr.numDigits <= 9 {
+                    self.plainStr = tempStr
+                    self.str = CalcFormatter.string(for: Double(self.plainStr)!)!
+                    self.displayed = Double(self.plainStr)!
+                }
+            }
+        }
+
+        let addDigitToOperandAfterPoint: TransitionFunction<State, Transition> = { (machine, transition) in
+            if case let .digit(digit) = transition {
+                let tempStr = "\(self.plainStr)\(Int(digit))"
+                if tempStr.numDigits <= 9 {
+                    self.plainStr = tempStr
+                    self.str = "\(self.str)\(Int(digit))"
+                    self.displayed = Double(self.plainStr)!
+                }
+            }
+        }
 
         for i in 1 ... 9 {
             NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint) { (machine, transition) in
                 self.str = "\(i)"
+            machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint, performing: addFirstDigit)
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
@@ -126,13 +156,7 @@ class Calculator {
         }
         for i in 0 ... 9 {
             NSLog("i is \(i)")
-            machine.add(transition: .digit(Double(i)), from: .enteringBeforePoint, to: .enteringBeforePoint) { (machine, transition) in
-                let tempStr = "\(self.plainStr)\(i)"
-                if tempStr.numDigits <= 9 {
-                    self.plainStr = tempStr
-                    self.str = CalcFormatter.string(for: Double(self.plainStr)!)!
-                    self.displayed = Double(self.plainStr)!
-                }
+            machine.add(transition: .digit(Double(i)), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: addDigitToOperand)
             }
         }
         machine.add(transition: .point, from: .enteringBeforePoint, to: .enteringAfterPoint) { (machine, transition) in
@@ -141,13 +165,7 @@ class Calculator {
             self.displayed = Double(self.plainStr)!
         }
         for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .enteringAfterPoint, to: .enteringAfterPoint) { (machine, transition) in
-                let tempStr = "\(self.plainStr)\(i)"
-                if tempStr.numDigits <= 9 {
-                    self.str = "\(self.str)\(i)"
-                    self.plainStr = "\(self.plainStr)\(i)"
-                    self.displayed = Double(self.plainStr)!
-                }
+            machine.add(transition: .digit(Double(i)), from: .enteringAfterPoint, to: .enteringAfterPoint, performing: addDigitToOperandAfterPoint)
             }
         }
 
@@ -200,14 +218,7 @@ class Calculator {
 
         for i in 0 ... 9 {
             NSLog("i is \(i)")
-            machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint) { (machine, transition) in
-                let tempStr = "\(self.plainStr)\(i)"
-                if tempStr.numDigits <= 9 {
-                    self.plainStr = tempStr
-                    self.str = CalcFormatter.string(for: Double(self.plainStr)!)!
-                    self.displayed = Double(self.plainStr)!
-                }
-            }
+            machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: addDigitToOperand)
             machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint) { (machine, transition) in
             }
 
@@ -218,14 +229,7 @@ class Calculator {
             self.displayed = Double(self.plainStr)!
         }
         for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint) { (machine, transition) in
-                let tempStr = "\(self.plainStr)\(i)"
-                if tempStr.numDigits <= 9 {
-                    self.str = "\(self.str)\(i)"
-                    self.plainStr = "\(self.plainStr)\(i)"
-                    self.displayed = Double(self.plainStr)!
-                }
-            }
+            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: addDigitToOperandAfterPoint)
             machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint) { (machine, transition) in
             }
         }
