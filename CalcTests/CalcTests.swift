@@ -922,6 +922,21 @@ class CalcTests: XCTestCase {
         XCTAssert(c.displayed == 12)
         XCTAssert(c.str == "12")
 
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.allClear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
     }
 
     func assertNumber(_ number: Double, _ str: String?) {

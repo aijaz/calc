@@ -84,7 +84,7 @@ enum State {
     case entering2AfterPoint
     case doneEntering2
     case primed
-    case acceptedOperand2
+    case acceptedOperand1Cleared
 }
 
 
@@ -226,6 +226,11 @@ class Calculator {
                 self.implicit = self.displayed
                 self.lastOperand = nil
             }
+            machine.add(transition: .calcOperator(oper), from: .acceptedOperand1Cleared, to: .acceptedOperand1) { (machine, transition) in
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
         }
 
 
@@ -234,7 +239,17 @@ class Calculator {
             self.plainStr = self.str
             self.displayed = 0
         }
+        machine.add(transition: .digit(0), from: .acceptedOperand1Cleared, to: .nothingEntered2) { (machine, transition) in
+            self.str = "0"
+            self.plainStr = self.str
+            self.displayed = 0
+        }
         machine.add(transition: .transformer(.signChange), from: .acceptedOperand1, to: .nothingEntered2Negative) { (machine, transition) in
+            self.str = "-0"
+            self.plainStr = self.str
+            self.displayed = 0
+        }
+        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1Cleared, to: .nothingEntered2Negative) { (machine, transition) in
             self.str = "-0"
             self.plainStr = self.str
             self.displayed = 0
@@ -256,6 +271,11 @@ class Calculator {
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
+            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1Cleared, to: .entering2BeforePoint) { (machine, transition) in
+                self.str = "\(i)"
+                self.plainStr = self.str
+                self.displayed = Double(self.plainStr)!
+            }
             machine.add(transition: .digit(Double(i)), from: .nothingEntered2, to: .entering2BeforePoint) { (machine, transition) in
                 self.str = "\(i)"
                 self.plainStr = self.str
@@ -268,6 +288,11 @@ class Calculator {
             }
         }
         machine.add(transition: .point, from: .acceptedOperand1, to: .entering2AfterPoint) { (machine, transition) in
+            self.plainStr = "0."
+            self.str = "0."
+            self.displayed = Double(self.plainStr)!
+        }
+        machine.add(transition: .point, from: .acceptedOperand1Cleared, to: .entering2AfterPoint) { (machine, transition) in
             self.plainStr = "0."
             self.str = "0."
             self.displayed = Double(self.plainStr)!
@@ -348,6 +373,7 @@ class Calculator {
         machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
         machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
         machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
+        machine.add(transition: .equal, from: .acceptedOperand1Cleared, to: .acceptedOperand1, performing: repeatedEqual )
 
 
         // Transitions for Percentage
@@ -390,11 +416,14 @@ class Calculator {
         // clear/all clear transitions
         machine.add(transition: .clear, from: .enteringBeforePoint, to: .nothingEntered, performing: reset)
         machine.add(transition: .clear, from: .enteringAfterPoint, to: .nothingEntered, performing: reset)
-        machine.add(transition: .clear, from: .acceptedOperand1, to: .acceptedOperand1, performing: clearSecondOperand)
-        machine.add(transition: .clear, from: .nothingEntered2, to: .acceptedOperand1, performing: clearSecondOperand)
-        machine.add(transition: .clear, from: .nothingEntered2Negative, to: .acceptedOperand1, performing: clearSecondOperand)
-        machine.add(transition: .clear, from: .entering2BeforePoint, to: .acceptedOperand1, performing: clearSecondOperand)
-        machine.add(transition: .clear, from: .entering2AfterPoint, to: .acceptedOperand1, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .acceptedOperand1, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .nothingEntered2, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .nothingEntered2Negative, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .entering2BeforePoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .entering2AfterPoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
+
+        machine.add(transition: .allClear, from: .acceptedOperand1Cleared, to: .nothingEntered, performing: reset)
+        // copy everything from .acceptedOperand1 to .acceptedOperand1Cleard with the exception of .clear
 
 
 
