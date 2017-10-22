@@ -150,6 +150,21 @@ class Calculator {
             self.str = CalcFormatter.string(for: self.displayed)!
         }
 
+        let reset: TransitionFunction<State, Transition> = { (machine, transition) in
+            self.str = "0"
+            self.plainStr = "0"
+            self.displayed = 0
+        }
+
+        let clearSecondOperand: TransitionFunction<State, Transition> = { (machine, transition) in
+            self.str = "0"
+            self.plainStr = "0"
+            self.displayed = 0
+        }
+
+
+
+
         machine.add(transition: .transformer(.signChange), from: .nothingEntered, to: .nothingEnteredNegative) { (machine, transition) in
             self.str = "-0"
         }
@@ -367,6 +382,16 @@ class Calculator {
             self.plainStr = "\(self.displayed)"
         }
         machine.add(transition: .equal, from: .doneEntering2, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
+
+
+        // clear/all clear transitions
+        machine.add(transition: .clear, from: .enteringBeforePoint, to: .nothingEntered, performing: reset)
+        machine.add(transition: .clear, from: .enteringAfterPoint, to: .nothingEntered, performing: reset)
+        machine.add(transition: .clear, from: .acceptedOperand1, to: .acceptedOperand1, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .nothingEntered2, to: .acceptedOperand1, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .nothingEntered2Negative, to: .acceptedOperand1, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .entering2BeforePoint, to: .acceptedOperand1, performing: clearSecondOperand)
+        machine.add(transition: .clear, from: .entering2AfterPoint, to: .acceptedOperand1, performing: clearSecondOperand)
 
 
 

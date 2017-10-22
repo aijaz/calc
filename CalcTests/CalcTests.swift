@@ -683,6 +683,206 @@ class CalcTests: XCTestCase {
         XCTAssert(c.displayed == 26.5)
         XCTAssert(c.str == "26.5")
 
+    }
+
+    func testClearEnteringFirstOperand() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+    }
+
+    func testClearEnteringFirstOperandPoint() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.point)
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+    }
+
+    func testClearEnteringFirstOperandPointNegative() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.point)
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == -10.5)
+        XCTAssert(c.str == "-10.5")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+    }
+
+    func testClearEnteringFirstOperandPointNegative2() {
+        let c = Calculator()
+        
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.point)
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == -10.5)
+        XCTAssert(c.str == "-10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+    }
+
+    func testClearEnteringFirstOperandPointNegative3() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.point)
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == -10.5)
+        XCTAssert(c.str == "-10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == 10.5)
+        XCTAssert(c.str == "10.5")
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == -10.5)
+        XCTAssert(c.str == "-10.5")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+    }
+
+    func testClear2ndOperandNE2() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+
+    }
+
+    func testClear2ndOperandNE2Neg() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.transformer(.signChange))
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+
+    }
+
+    func testClear2ndOperandE2BP() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+
+    }
+
+    func testClear2ndOperandE2AP() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        XCTAssert(c.displayed == 1)
+        XCTAssert(c.str == "1")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+        c.keyPressed(.point)
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 4.5)
+        XCTAssert(c.str == "4.5")
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
 
     }
 
