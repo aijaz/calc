@@ -584,7 +584,22 @@ class CalcTests: XCTestCase {
         XCTAssert(c.str == "13")
     }
 
+    func testNE2NegPoint() {
+        let c = Calculator()
 
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.transformer(.signChange))
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "-0")
+        c.keyPressed(.point)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "-0.")
+
+    }
 
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)

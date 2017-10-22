@@ -256,9 +256,14 @@ class Calculator {
             self.displayed = Double(self.plainStr)!
         }
         machine.add(transition: .point, from: .nothingEntered2, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "\(self.plainStr)."
-            self.str = "\(self.str)."
-            self.displayed = Double(self.plainStr)!
+            self.plainStr = "0."
+            self.str = "0."
+            self.displayed = 0
+        }
+        machine.add(transition: .point, from: .nothingEntered2Negative, to: .entering2AfterPoint) { (machine, transition) in
+            self.plainStr = "-0."
+            self.str = "-0."
+            self.displayed = 0
         }
 
         for i in 0 ... 9 {
