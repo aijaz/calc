@@ -173,7 +173,6 @@ class Calculator {
         }
 
         for i in 1 ... 9 {
-            NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint, performing: addFirstDigit)
 
             machine.add(transition: .digit(Double(i)), from: .nothingEnteredNegative, to: .enteringBeforePoint) { (machine, transition) in
@@ -194,7 +193,6 @@ class Calculator {
         }
 
         for i in 0 ... 9 {
-            NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: addDigitToOperand)
             machine.add(transition: .transformer(.signChange), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: toggleSignOfDisplayed)
 
@@ -265,7 +263,6 @@ class Calculator {
             self.displayed = 0
         }
         for i in 1 ... 9 {
-            NSLog("i is \(i)")
             machine.add(transition: .digit(Double(i)), from: .acceptedOperand1, to: .entering2BeforePoint) { (machine, transition) in
                 self.str = "\(i)"
                 self.plainStr = self.str
