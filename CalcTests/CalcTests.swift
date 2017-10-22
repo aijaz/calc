@@ -886,6 +886,44 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testAC() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.multiply))
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 45)
+        XCTAssert(c.str == "45")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 135)
+        XCTAssert(c.str == "135")
+
+        c.keyPressed(.clear)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
+
+    }
+
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)
         NSLog("Testing \(number) Got '\(s ?? "nil")', expected \(str ?? "nil")")

@@ -314,9 +314,10 @@ class Calculator {
             }
             self.displayAnswer(answer)
         }
-        let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
 
+        let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
             if self.lastOperand == nil {
+                self.lastOperand = self.implicit
                 equalHelper()
                 return
             }
@@ -337,9 +338,11 @@ class Calculator {
         }
 
         let equalFunctionChangingLastOperand: TransitionFunction<State, Transition> = { (machine, transition) in
-            self.lastOperand = self.displayed
-
+            if self.lastOperand == nil {
+                self.lastOperand = self.displayed
+            }
             equalHelper()
+            self.implicit = self.lastOperand!
         }
 
         machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
