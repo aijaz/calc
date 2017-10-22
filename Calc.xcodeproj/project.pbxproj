@@ -20,6 +20,10 @@
 		B426481A1F9A980C00AF3E1D /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648181F9A980C00AF3E1D /* State.swift */; };
 		B426481C1F9ACBA700AF3E1D /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B426481B1F9ACBA700AF3E1D /* Calculator.swift */; };
 		B426481D1F9ACBA700AF3E1D /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B426481B1F9ACBA700AF3E1D /* Calculator.swift */; };
+		B426481F1F9D52C200AF3E1D /* HighlightableButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B426481E1F9D52C100AF3E1D /* HighlightableButton.swift */; };
+		B42648201F9D52C200AF3E1D /* HighlightableButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B426481E1F9D52C100AF3E1D /* HighlightableButton.swift */; };
+		B42648221F9D533D00AF3E1D /* HexColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648211F9D533D00AF3E1D /* HexColor.swift */; };
+		B42648231F9D533D00AF3E1D /* HexColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42648211F9D533D00AF3E1D /* HexColor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +60,8 @@
 		B42648131F99A23E00AF3E1D /* CalcFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalcFormatter.swift; sourceTree = "<group>"; };
 		B42648181F9A980C00AF3E1D /* State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
 		B426481B1F9ACBA700AF3E1D /* Calculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculator.swift; sourceTree = "<group>"; };
+		B426481E1F9D52C100AF3E1D /* HighlightableButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightableButton.swift; sourceTree = "<group>"; };
+		B42648211F9D533D00AF3E1D /* HexColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexColor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +146,8 @@
 			isa = PBXGroup;
 			children = (
 				B42648131F99A23E00AF3E1D /* CalcFormatter.swift */,
+				B426481E1F9D52C100AF3E1D /* HighlightableButton.swift */,
+				B42648211F9D533D00AF3E1D /* HexColor.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -287,6 +295,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B42648221F9D533D00AF3E1D /* HexColor.swift in Sources */,
+				B426481F1F9D52C200AF3E1D /* HighlightableButton.swift in Sources */,
 				B42648141F99A23E00AF3E1D /* CalcFormatter.swift in Sources */,
 				B42647E61F99A18600AF3E1D /* ViewController.swift in Sources */,
 				B42647E41F99A18600AF3E1D /* AppDelegate.swift in Sources */,
@@ -299,6 +309,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B42648201F9D52C200AF3E1D /* HighlightableButton.swift in Sources */,
+				B42648231F9D533D00AF3E1D /* HexColor.swift in Sources */,
 				B42647F91F99A18600AF3E1D /* CalcTests.swift in Sources */,
 				B426481D1F9ACBA700AF3E1D /* Calculator.swift in Sources */,
 				B42648151F9A322300AF3E1D /* CalcFormatter.swift in Sources */,
