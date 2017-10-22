@@ -101,6 +101,7 @@ class Calculator {
 
     let machine = StateMachine<State, Transition>(state: .nothingEntered)
 
+
     init() {
         implicit = 0
         displayed = 0
@@ -201,38 +202,21 @@ class Calculator {
         // =
         let equalHelper = { () in
             var answer: Double = 0
-            var operand2 = self.displayed
-//            if let op = self.lastOperand {
-//                operand2 = op
-//            }
             if let lastOp = self.lastOperator {
                 switch lastOp {
                 case .add:
-                    answer = self.implicit + operand2
+                    answer = self.implicit + self.displayed
                 case .subtract:
-                    answer = self.implicit - operand2
+                    answer = self.implicit - self.displayed
                 case .multiply:
-                    answer = self.implicit * operand2
+                    answer = self.implicit * self.displayed
                 case .divide:
-                    answer = self.implicit / operand2
+                    answer = self.implicit / self.displayed
                 }
             }
-            if let str = CalcFormatter.string(for: answer) {
-                self.plainStr = "\(answer)"
-                self.displayed = answer
-                self.str = str
-            }
-            else {
-                self.str = "Error"
-                self.plainStr = "Error"
-                self.displayed = 0
-            }
+            self.displayAnswer(answer)
         }
         let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
-//            equalHelper()
-//            if let lo = self.lastOperand {
-//                self.implicit = lo
-//            }
 
             if self.lastOperand == nil {
                 equalHelper()
@@ -251,75 +235,40 @@ class Calculator {
                     answer = self.displayed / lastOperand
                 }
             }
-            if let str = CalcFormatter.string(for: answer) {
-                self.plainStr = "\(answer)"
-                self.displayed = answer
-                self.str = str
-            }
-            else {
-                self.str = "Error"
-                self.plainStr = "Error"
-                self.displayed = 0
-            }
+            self.displayAnswer(answer)
         }
 
-        let equalFunctionChangingImplicit: TransitionFunction<State, Transition> = { (machine, transition) in
+        let equalFunctionChangingLastOperand: TransitionFunction<State, Transition> = { (machine, transition) in
             self.lastOperand = self.displayed
 
             equalHelper()
-//            if let lo = self.lastOperand {
-//                self.implicit = lo
-//            }
-//            else {
-//                self.implicit = self.displayed
-//                self.lastOperand = oldDisplayed
-//            }
         }
 
-        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingImplicit )
-        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingImplicit )
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
+        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
         machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
 
 
 
 
 
-//        let digitFunction: TransitionFunction<State, Transition> = { (machine, transition) in
-//            if case let Transition.digit(digit) = transition {
-//                NSLog("Transitioning with \(digit)")
-//                if self.pointEntered {
-//                    self.numFractionalDigits += 1
-//                    var multiplicant:Double = 1.0
-//                    for _ in 0 ..< self.numFractionalDigits {
-//                        multiplicant *= Double(0.1)
-//                    }
-//                    self.displayed += (digit * multiplicant)
-//                }
-//                else {
-//                    self.displayed = self.displayed * 10 + digit
-//                }
-//            }
-//        }
-//
-//        for i in 1 ... 9 {
-//            NSLog("i is \(i)")
-//            machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .entering, performing: digitFunction)
-//        }
-//        for i in 0 ... 9 {
-//            NSLog("i is \(i)")
-//            machine.add(transition: .digit(Double(i)), from: .entering, to: .entering, performing: digitFunction)
-//        }
-//
-//        let pointFunction: TransitionFunction<State, Transition> = { (machine, transition) in
-//            if self.pointEntered { return }
-//            self.pointEntered = true
-//
-//        }
-//        machine.add(transition: .point, from: .nothingEntered, to: .entering, performing: pointFunction)
-//        machine.add(transition: .point, from: .entering, to: .entering, performing: pointFunction)
 
 
     }
+
+    fileprivate func displayAnswer(_ answer: Double) {
+        if let str = CalcFormatter.string(for: answer) {
+            self.plainStr = "\(answer)"
+            self.displayed = answer
+            self.str = str
+        }
+        else {
+            self.str = "Error"
+            self.plainStr = "Error"
+            self.displayed = 0
+        }
+    }
+
 
     func keyPressed(_ transition: Transition) {
         machine.perform(transition: transition)
