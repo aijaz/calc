@@ -83,11 +83,15 @@ enum State {
     case entering2BeforePoint
     case entering2AfterPoint
     case doneEntering2
-    case primed
     case acceptedOperand1Cleared
+    case operationCompleted
+    case nothingEntered3
+    case nothingEntered3Negative
+    case entering3BeforePoint
+    case entering3AfterPoint
 }
 
-
+typealias CalcTransitionFunction = TransitionFunction<State, Transition>
 
 
 class Calculator {
@@ -114,7 +118,7 @@ class Calculator {
         str = "0"
         plainStr = "0"
 
-        let addFirstDigit: TransitionFunction<State, Transition> = { (machine, transition) in
+        let addFirstDigit: CalcTransitionFunction = { (_, transition) in
             if case let .digit(digit) = transition {
                 self.str = "\(Int(digit))"
                 self.plainStr = self.str
@@ -122,7 +126,7 @@ class Calculator {
             }
         }
 
-        let addDigitToOperand: TransitionFunction<State, Transition> = { (machine, transition) in
+        let addDigitToOperand: CalcTransitionFunction = { (_, transition) in
             if case let .digit(digit) = transition {
                 let tempStr = "\(self.plainStr)\(Int(digit))"
                 if tempStr.numDigits <= 9 {
@@ -133,7 +137,7 @@ class Calculator {
             }
         }
 
-        let addDigitToOperandAfterPoint: TransitionFunction<State, Transition> = { (machine, transition) in
+        let addDigitToOperandAfterPoint: CalcTransitionFunction = { (_, transition) in
             if case let .digit(digit) = transition {
                 let tempStr = "\(self.plainStr)\(Int(digit))"
                 if tempStr.numDigits <= 9 {
@@ -144,181 +148,210 @@ class Calculator {
             }
         }
 
-        let toggleSignOfDisplayed: TransitionFunction<State, Transition> = { (machine, transition) in
+        let toggleSignOfDisplayed: CalcTransitionFunction = { (_, _) in
             self.displayed *= -1
             self.plainStr = "\(self.displayed)"
             self.str = CalcFormatter.string(for: self.displayed)!
         }
 
-        let reset: TransitionFunction<State, Transition> = { (machine, transition) in
+        let reset: CalcTransitionFunction = { (_, _) in
             self.str = "0"
             self.plainStr = "0"
             self.displayed = 0
         }
 
-        let clearSecondOperand: TransitionFunction<State, Transition> = { (machine, transition) in
+        let clearSecondOperand: CalcTransitionFunction = { (_, _) in
             self.str = "0"
             self.plainStr = "0"
             self.displayed = 0
         }
 
-
-
-
-        machine.add(transition: .transformer(.signChange), from: .nothingEntered, to: .nothingEnteredNegative) { (machine, transition) in
+        let neToNeNeg: CalcTransitionFunction = { (_, _) in
             self.str = "-0"
+            self.plainStr = "-0"
+            self.displayed = 0
         }
-        machine.add(transition: .transformer(.signChange), from: .nothingEnteredNegative, to: .nothingEntered) { (machine, transition) in
+
+        let neNegToNe: CalcTransitionFunction = { (_, _) in
             self.str = "0"
+            self.plainStr = "0"
+            self.displayed = 0
         }
 
-        for i in 1 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .nothingEntered, to: .enteringBeforePoint, performing: addFirstDigit)
-
-            machine.add(transition: .digit(Double(i)), from: .nothingEnteredNegative, to: .enteringBeforePoint) { (machine, transition) in
-                self.str = "-\(i)"
+        let neNegToEnteringBeforePoint: CalcTransitionFunction = { (_, transition) in
+            if case let .digit(digit) = transition {
+                self.str = "-\(digit)"
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
         }
-        machine.add(transition: .point, from: .nothingEntered, to: .enteringAfterPoint) { (machine, transition) in
+
+        let neToEAP: CalcTransitionFunction = { (_, _) in
             self.plainStr = "0."
             self.str = "0."
             self.displayed = Double(self.plainStr)!
         }
-        machine.add(transition: .point, from: .nothingEnteredNegative, to: .enteringAfterPoint) { (machine, transition) in
+        let neNegToEAP: CalcTransitionFunction = { (_, _) in
             self.plainStr = "-0."
             self.str = "-0."
             self.displayed = Double(self.plainStr)!
         }
 
-        for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: addDigitToOperand)
-            machine.add(transition: .transformer(.signChange), from: .enteringBeforePoint, to: .enteringBeforePoint, performing: toggleSignOfDisplayed)
-
-        }
-        machine.add(transition: .point, from: .enteringBeforePoint, to: .enteringAfterPoint) { (machine, transition) in
+        let ebpToEap: CalcTransitionFunction = { (_, _) in
             self.plainStr = "\(self.plainStr)."
             self.str = "\(self.str)."
             self.displayed = Double(self.plainStr)!
-        }
-        for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .enteringAfterPoint, to: .enteringAfterPoint, performing: addDigitToOperandAfterPoint)
-            machine.add(transition: .transformer(.signChange), from: .enteringAfterPoint, to: .enteringAfterPoint, performing: toggleSignOfDisplayed)
+
         }
 
+        let firstOperandPctFunction: CalcTransitionFunction = { (_,_) in
+            self.displayed /= 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
+        }
+
+        let acceptFirstOperand: CalcTransitionFunction = { (_,transition) in
+            if case let .calcOperator(oper) = transition {
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
+        }
+
+        func createNumberGatherer(ne: State, neNeg: State, ebp: State, eap: State, done: State, doneFunction: @escaping CalcTransitionFunction) {
+            machine.add(transition: .transformer(.signChange), from: ne, to: neNeg, performing: neToNeNeg)
+            machine.add(transition: .transformer(.signChange), from: neNeg, to: ne, performing: neNegToNe)
+            machine.add(transition: .transformer(.percent), from: neNeg, to: ne, performing: neNegToNe)
+            machine.add(transition: .point, from: neNeg, to: eap, performing: neNegToEAP)
+            machine.add(transition: .point, from: ne, to: eap, performing: neToEAP)
+            machine.add(transition: .point, from: ebp, to: eap, performing: ebpToEap)
+            machine.add(transition: .clear, from: ebp, to: ne, performing: reset)
+            machine.add(transition: .clear, from: ebp, to: neNeg, performing: reset)
+
+
+            for i in 1 ... 9 {
+                machine.add(transition: .digit(Double(i)), from: ne, to: ebp, performing: addFirstDigit)
+                machine.add(transition: .digit(Double(i)), from: neNeg, to: ebp, performing: neNegToEnteringBeforePoint)
+            }
+
+            for i in 0 ... 9 {
+                machine.add(transition: .digit(Double(i)), from: ebp, to: ebp, performing: addDigitToOperand)
+                machine.add(transition: .transformer(.signChange), from: ebp, to: ebp, performing: toggleSignOfDisplayed)
+                machine.add(transition: .digit(Double(i)), from: eap, to: eap, performing: addDigitToOperandAfterPoint)
+                machine.add(transition: .transformer(.signChange), from: eap, to: eap, performing: toggleSignOfDisplayed)
+            }
+
+            machine.add(transition: .transformer(.percent), from: ebp, to: done, performing: doneFunction)
+            machine.add(transition: .transformer(.percent), from: eap, to: done, performing: doneFunction)
+        }
+
+
+
+        createNumberGatherer(ne: .nothingEntered, neNeg: .nothingEnteredNegative, ebp: .enteringBeforePoint, eap: .enteringAfterPoint, done: .doneEntering, doneFunction: firstOperandPctFunction)
+
+
+        // first operand
         let ops: [CalcOperator] = [.add, .subtract, .multiply, .divide]
         for oper in ops {
-            machine.add(transition: .calcOperator(oper), from: .enteringBeforePoint, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOperator = oper
-                self.implicit = self.displayed
-                self.lastOperand = nil
-            }
-            machine.add(transition: .calcOperator(oper), from: .enteringAfterPoint, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOperator = oper
-                self.implicit = self.displayed
-                self.lastOperand = nil
-            }
-            machine.add(transition: .calcOperator(oper), from: .acceptedOperand1, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOperator = oper
-                self.implicit = self.displayed
-                self.lastOperand = nil
-            }
-            machine.add(transition: .calcOperator(oper), from: .acceptedOperand1Cleared, to: .acceptedOperand1) { (machine, transition) in
-                self.lastOperator = oper
-                self.implicit = self.displayed
-                self.lastOperand = nil
-            }
+            machine.add(transition: .calcOperator(oper), from: .enteringBeforePoint, to: .acceptedOperand1, performing: acceptFirstOperand)
+            machine.add(transition: .calcOperator(oper), from: .enteringAfterPoint, to: .acceptedOperand1, performing: acceptFirstOperand)
+            machine.add(transition: .calcOperator(oper), from: .doneEntering, to: .acceptedOperand1, performing: acceptFirstOperand )
         }
 
 
-        machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2) { (machine, transition) in
-            self.str = "0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
-        machine.add(transition: .digit(0), from: .acceptedOperand1Cleared, to: .nothingEntered2) { (machine, transition) in
-            self.str = "0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
-        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1, to: .nothingEntered2Negative) { (machine, transition) in
-            self.str = "-0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
-        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1Cleared, to: .nothingEntered2Negative) { (machine, transition) in
-            self.str = "-0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
-        machine.add(transition: .transformer(.signChange), from: .nothingEntered2, to: .nothingEntered2Negative) { (machine, transition) in
-            self.str = "-0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
-        machine.add(transition: .transformer(.signChange), from: .nothingEntered2Negative, to: .nothingEntered2) { (machine, transition) in
-            self.str = "0"
-            self.plainStr = self.str
-            self.displayed = 0
-        }
+
+        machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2, performing: reset)
+        machine.add(transition: .digit(0), from: .acceptedOperand1Cleared, to: .nothingEntered2, performing: reset)
+
+        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1, to: .nothingEntered2Negative, performing: neToNeNeg)
+        machine.add(transition: .transformer(.signChange), from: .acceptedOperand1Cleared, to: .nothingEntered2Negative, performing: neToNeNeg)
+
         for i in 1 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1, to: .entering2BeforePoint) { (machine, transition) in
-                self.str = "\(i)"
-                self.plainStr = self.str
-                self.displayed = Double(self.plainStr)!
-            }
-            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1Cleared, to: .entering2BeforePoint) { (machine, transition) in
-                self.str = "\(i)"
-                self.plainStr = self.str
-                self.displayed = Double(self.plainStr)!
-            }
-            machine.add(transition: .digit(Double(i)), from: .nothingEntered2, to: .entering2BeforePoint) { (machine, transition) in
-                self.str = "\(i)"
-                self.plainStr = self.str
-                self.displayed = Double(self.plainStr)!
-            }
-            machine.add(transition: .digit(Double(i)), from: .nothingEntered2Negative, to: .entering2BeforePoint) { (machine, transition) in
-                self.str = "-\(i)"
-                self.plainStr = self.str
-                self.displayed = Double(self.plainStr)!
-            }
+            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1, to: .entering2BeforePoint, performing: addFirstDigit)
+            machine.add(transition: .digit(Double(i)), from: .acceptedOperand1Cleared, to: .entering2BeforePoint, performing: addFirstDigit)
         }
-        machine.add(transition: .point, from: .acceptedOperand1, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "0."
-            self.str = "0."
-            self.displayed = Double(self.plainStr)!
-        }
-        machine.add(transition: .point, from: .acceptedOperand1Cleared, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "0."
-            self.str = "0."
-            self.displayed = Double(self.plainStr)!
-        }
-        machine.add(transition: .point, from: .nothingEntered2, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "0."
-            self.str = "0."
-            self.displayed = 0
-        }
-        machine.add(transition: .point, from: .nothingEntered2Negative, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "-0."
-            self.str = "-0."
-            self.displayed = 0
+        machine.add(transition: .point, from: .acceptedOperand1, to: .entering2AfterPoint, performing: neToEAP)
+        machine.add(transition: .point, from: .acceptedOperand1Cleared, to: .entering2AfterPoint, performing: neToEAP)
+
+        machine.add(transition: .allClear, from: .acceptedOperand1Cleared, to: .nothingEntered, performing: reset)
+
+        let secondOperandDone: CalcTransitionFunction = { (_,_) in
+            self.displayed = self.implicit * self.displayed / 100.0
+            self.str = CalcFormatter.string(for: self.displayed)!
+            self.plainStr = "\(self.displayed)"
         }
 
-        for i in 0 ... 9 {
-            machine.add(transition: .digit(Double(i)), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: addDigitToOperand)
-            machine.add(transition: .transformer(.signChange), from: .entering2BeforePoint, to: .entering2BeforePoint, performing: toggleSignOfDisplayed)
-            machine.add(transition: .digit(Double(i)), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: addDigitToOperandAfterPoint)
-            machine.add(transition: .transformer(.signChange), from: .entering2AfterPoint, to: .entering2AfterPoint, performing: toggleSignOfDisplayed)
+        createNumberGatherer(ne: .nothingEntered2, neNeg: .nothingEntered2Negative, ebp: .entering2BeforePoint, eap: .entering2AfterPoint, done: .doneEntering2, doneFunction: secondOperandDone)
+
+        let equalFunctionTwoOperands: CalcTransitionFunction = { (_,_) in
+            self.lastOperand = self.displayed
+            var answer: Double = 0
+            if let lastOp = self.lastOperator {
+                switch lastOp {
+                case .add:
+                    answer = self.implicit + self.displayed
+                case .subtract:
+                    answer = self.implicit - self.displayed
+                case .multiply:
+                    answer = self.implicit * self.displayed
+                case .divide:
+                    answer = self.implicit / self.displayed
+                }
+            }
+            self.displayAnswer(answer)
+            self.implicit = self.lastOperand!
         }
-        machine.add(transition: .point, from: .entering2BeforePoint, to: .entering2AfterPoint) { (machine, transition) in
-            self.plainStr = "\(self.plainStr)."
-            self.str = "\(self.str)."
-            self.displayed = Double(self.plainStr)!
+
+        let equalMissingSecondOperand: CalcTransitionFunction = { (_,_) in
+            self.lastOperand = self.implicit
+            var answer: Double = 0
+            if let lastOp = self.lastOperator {
+                switch lastOp {
+                case .add:
+                    answer = self.implicit + self.displayed
+                case .subtract:
+                    answer = self.implicit - self.displayed
+                case .multiply:
+                    answer = self.implicit * self.displayed
+                case .divide:
+                    answer = self.implicit / self.displayed
+                }
+            }
+            self.displayAnswer(answer)
         }
 
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .operationCompleted, performing: equalFunctionTwoOperands )
+        machine.add(transition: .equal, from: .entering2AfterPoint, to: .operationCompleted, performing: equalFunctionTwoOperands )
+        machine.add(transition: .equal, from: .doneEntering2, to: .operationCompleted, performing: equalFunctionTwoOperands )
+
+        machine.add(transition: .equal, from: .acceptedOperand1, to: .operationCompleted, performing: equalMissingSecondOperand )
+        machine.add(transition: .equal, from: .acceptedOperand1Cleared, to: .operationCompleted, performing: equalMissingSecondOperand )
+
+        let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
+            var answer: Double = 0
+            if let lastOp = self.lastOperator, let lastOperand = self.lastOperand {
+                switch lastOp {
+                case .add:
+                    answer = self.displayed + lastOperand
+                case .subtract:
+                    answer = self.displayed - lastOperand
+                case .multiply:
+                    answer = self.displayed * lastOperand
+                case .divide:
+                    answer = self.displayed / lastOperand
+                }
+            }
+            self.displayAnswer(answer)
+        }
+
+        machine.add(transition: .equal, from: .operationCompleted, to: .operationCompleted, performing: repeatedEqual )
+
+        // sequences
+        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionTwoOperands )
+        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionTwoOperands )
 
 
+////////////
         // =
         let equalHelper = { () in
             var answer: Double = 0
@@ -337,27 +370,6 @@ class Calculator {
             self.displayAnswer(answer)
         }
 
-        let repeatedEqual: TransitionFunction<State, Transition> = { (machine, transition) in
-            if self.lastOperand == nil {
-                self.lastOperand = self.implicit
-                equalHelper()
-                return
-            }
-            var answer: Double = 0
-            if let lastOp = self.lastOperator, let lastOperand = self.lastOperand {
-                switch lastOp {
-                case .add:
-                    answer = self.displayed + lastOperand
-                case .subtract:
-                    answer = self.displayed - lastOperand
-                case .multiply:
-                    answer = self.displayed * lastOperand
-                case .divide:
-                    answer = self.displayed / lastOperand
-                }
-            }
-            self.displayAnswer(answer)
-        }
 
         let equalFunctionChangingLastOperand: TransitionFunction<State, Transition> = { (machine, transition) in
             if self.lastOperand == nil {
@@ -382,45 +394,14 @@ class Calculator {
 
         }
 
-        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
-        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
-        machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
-        machine.add(transition: .equal, from: .acceptedOperand1Cleared, to: .acceptedOperand1, performing: repeatedEqual )
 
 
-        // Transitions for Percentage
-        machine.add(transition: .transformer(.percent), from: .nothingEnteredNegative, to: .nothingEntered) { (_, _) in
-            self.displayed = 0
-            self.str = "0"
-            self.plainStr = "0"
-        }
-
-        machine.add(transition: .transformer(.percent), from: .enteringBeforePoint, to: .doneEntering) { (_, _) in
-            self.displayed /= 100.0
-            self.str = CalcFormatter.string(for: self.displayed)!
-            self.plainStr = "\(self.displayed)"
-        }
-        machine.add(transition: .transformer(.percent), from: .enteringAfterPoint, to: .doneEntering) { (_, _) in
-            self.displayed /= 100.0
-            self.str = CalcFormatter.string(for: self.displayed)!
-            self.plainStr = "\(self.displayed)"
-        }
         for oper in ops {
             machine.add(transition: .calcOperator(oper), from: .doneEntering, to: .acceptedOperand1) { (machine, transition) in
                 self.lastOperator = oper
                 self.implicit = self.displayed
                 self.lastOperand = nil
             }
-        }
-        machine.add(transition: .transformer(.percent), from: .entering2BeforePoint, to: .doneEntering2) { (_, _) in
-            self.displayed = self.implicit * self.displayed / 100.0
-            self.str = CalcFormatter.string(for: self.displayed)!
-            self.plainStr = "\(self.displayed)"
-        }
-        machine.add(transition: .transformer(.percent), from: .entering2AfterPoint, to: .doneEntering2) { (_, _) in
-            self.displayed = self.implicit * self.displayed / 100.0
-            self.str = CalcFormatter.string(for: self.displayed)!
-            self.plainStr = "\(self.displayed)"
         }
         machine.add(transition: .equal, from: .doneEntering2, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
 
@@ -434,7 +415,6 @@ class Calculator {
         machine.add(transition: .clear, from: .entering2BeforePoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
         machine.add(transition: .clear, from: .entering2AfterPoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
 
-        machine.add(transition: .allClear, from: .acceptedOperand1Cleared, to: .nothingEntered, performing: reset)
         // copy everything from .acceptedOperand1 to .acceptedOperand1Cleard with the exception of .clear
 
 

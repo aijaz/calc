@@ -248,6 +248,78 @@ class CalcTests: XCTestCase {
         XCTAssert(c.str == "3")
     }
 
+    func testTwoOperandAdd() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(1))
+        c.keyPressed(.digit(0))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 10)
+        XCTAssert(c.str == "10")
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+    }
+
+    func testMissingSecondOperand() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+    }
+
+    func testMissingSecondOperandMultipleEqual() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.calcOperator(.add))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 6)
+        XCTAssert(c.str == "6")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 9)
+        XCTAssert(c.str == "9")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 12)
+        XCTAssert(c.str == "12")
+    }
+
+    func testMissingSecondOperandMultipleEqualSubtract() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.calcOperator(.subtract))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 0)
+        XCTAssert(c.str == "0")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -3)
+        XCTAssert(c.str == "-3")
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == -6)
+        XCTAssert(c.str == "-6")
+    }
+
     func testAdd() {
         let c = Calculator()
 
@@ -964,7 +1036,7 @@ class CalcTests: XCTestCase {
 
     }
 
-    func testNexOperation() {
+    func testNextOperation() {
         let c = Calculator()
 
         c.keyPressed(.digit(5))
