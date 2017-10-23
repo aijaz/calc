@@ -939,7 +939,7 @@ class CalcTests: XCTestCase {
         XCTAssert(c.str == "4")
     }
 
-    func testSecondOperator() {
+    func testSequence() {
         let c = Calculator()
 
         c.keyPressed(.digit(5))
@@ -961,6 +961,38 @@ class CalcTests: XCTestCase {
         c.keyPressed(.equal)
         XCTAssert(c.displayed == 45)
         XCTAssert(c.str == "45")
+
+    }
+
+    func testNexOperation() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.multiply))
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.multiply))
+        c.keyPressed(.digit(4))
+        XCTAssert(c.displayed == 4)
+        XCTAssert(c.str == "4")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 20)
+        XCTAssert(c.str == "20")
+
 
     }
 
