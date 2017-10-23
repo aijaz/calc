@@ -396,6 +396,8 @@ class Calculator {
             machine.add(transition: .calcOperator(oper), from: .entering3AfterPoint, to: .acceptedOperand1, performing: acceptFirstOperand )
         }
 
+        machine.add(transition: .equal, from: .entering3BeforePoint, to: .acceptedOperand1, performing: repeatedEqual )
+        machine.add(transition: .equal, from: .entering3AfterPoint, to: .acceptedOperand1, performing: repeatedEqual )
 
 
 ////////////
