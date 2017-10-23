@@ -1036,7 +1036,33 @@ class CalcTests: XCTestCase {
 
     }
 
-    
+    func testSequenceWithEqual() {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        XCTAssert(c.displayed == 5)
+        XCTAssert(c.str == "5")
+
+        c.keyPressed(.calcOperator(.multiply))
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 15)
+        XCTAssert(c.str == "15")
+        c.keyPressed(.calcOperator(.add))
+        c.keyPressed(.digit(3))
+        XCTAssert(c.displayed == 3)
+        XCTAssert(c.str == "3")
+
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 18)
+        XCTAssert(c.str == "18")
+
+    }
+
+
 
     func testNextOperation() {
         let c = Calculator()
