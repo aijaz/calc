@@ -52,7 +52,7 @@ extension String {
         return components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
     }
     var numDigits: Int {
-        return components(separatedBy: CharacterSet.decimalDigits.inverted).count
+        return components(separatedBy: CharacterSet.decimalDigits.inverted)[0].count
     }
 }
 
