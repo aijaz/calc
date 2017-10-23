@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AudioToolbox
 
 class ViewController: UIViewController {
 
@@ -75,6 +76,7 @@ class ViewController: UIViewController {
 
 
     @IBAction func handleButtonTap(_ sender: UIButton) {
+        AudioServicesPlaySystemSound(1104)
         if (sender == digit0) { calculator.keyPressed(.digit(0)) }
         else if (sender == digit1) { calculator.keyPressed(.digit(1)) }
         else if (sender == digit2) { calculator.keyPressed(.digit(2)) }
@@ -102,6 +104,12 @@ class ViewController: UIViewController {
             }
         }
         self.refresh()
+
+        if sender == divideButton || sender == multiplyButton || sender == addButton || sender == subtractButton {
+            DispatchQueue.main.async {
+                sender.backgroundColor = .white
+            }
+        }
     }
 
     func refresh() {
@@ -112,6 +120,11 @@ class ViewController: UIViewController {
         else {
             acLabel.text = "C"
         }
+
+        addButton.backgroundColor = UIColor(hexString: "FD9226")
+        multiplyButton.backgroundColor = UIColor(hexString: "FD9226")
+        divideButton.backgroundColor = UIColor(hexString: "FD9226")
+        subtractButton.backgroundColor = UIColor(hexString: "FD9226")
     }
 
 

@@ -404,65 +404,6 @@ class Calculator {
 
         machine.add(transition: .clear, from: .operationCompleted, to: .acceptedOperand1Cleared, performing: reset)
 
-////////////
-        // =
-//        let equalHelper = { () in
-//            var answer: Double = 0
-//            if let lastOp = self.lastOperator {
-//                switch lastOp {
-//                case .add:
-//                    answer = self.implicit + self.displayed
-//                case .subtract:
-//                    answer = self.implicit - self.displayed
-//                case .multiply:
-//                    answer = self.implicit * self.displayed
-//                case .divide:
-//                    answer = self.implicit / self.displayed
-//                }
-//            }
-//            self.displayAnswer(answer)
-//        }
-//
-//
-//        let equalFunctionChangingLastOperand: TransitionFunction<State, Transition> = { (machine, transition) in
-//            if self.lastOperand == nil {
-//                self.lastOperand = self.displayed
-//            }
-//            equalHelper()
-//            self.implicit = self.lastOperand!
-//        }
-//
-//
-//
-//
-//        for oper in ops {
-//            machine.add(transition: .calcOperator(oper), from: .doneEntering, to: .acceptedOperand1) { (machine, transition) in
-//                self.lastOperator = oper
-//                self.implicit = self.displayed
-//                self.lastOperand = nil
-//            }
-//        }
-//        machine.add(transition: .equal, from: .doneEntering2, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
-
-
-        // clear/all clear transitions
-//        machine.add(transition: .clear, from: .enteringBeforePoint, to: .nothingEntered, performing: reset)
-//        machine.add(transition: .clear, from: .enteringAfterPoint, to: .nothingEntered, performing: reset)
-//        machine.add(transition: .clear, from: .acceptedOperand1, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
-//        machine.add(transition: .clear, from: .nothingEntered2, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
-//        machine.add(transition: .clear, from: .nothingEntered2Negative, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
-//        machine.add(transition: .clear, from: .entering2BeforePoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
-//        machine.add(transition: .clear, from: .entering2AfterPoint, to: .acceptedOperand1Cleared, performing: clearSecondOperand)
-
-        // copy everything from .acceptedOperand1 to .acceptedOperand1Cleard with the exception of .clear
-
-
-        // sequences of operations
-//        for oper in ops {
-//            machine.add(transition: .calcOperator(oper), from: .entering2BeforePoint, to: .acceptedOperand1, performing: nextOperation )
-//            machine.add(transition: .calcOperator(oper), from: .entering2AfterPoint, to: .acceptedOperand1, performing: nextOperation )
-//        }
-
 
     }
 
