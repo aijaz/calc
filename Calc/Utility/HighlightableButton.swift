@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// A subclass of UIButton whose background color changes when highlighted. Used for the AC/C, +/-, and % buttons
 class HighlightableButton: UIButton {
 
     override var isHighlighted: Bool {
@@ -17,6 +18,8 @@ class HighlightableButton: UIButton {
     }
 
 }
+
+/// A subclass of UIButton whose background color changes when highlighted. Used for the +, -, ×, and ÷ buttons
 class OperatorButton: UIButton {
 
     override var isHighlighted: Bool {
@@ -26,6 +29,7 @@ class OperatorButton: UIButton {
     }
 }
 
+/// A subclass of UIButton whose background color changes when highlighted. Used for the digit buttons
 class DigitButton: UIButton {
     override var isHighlighted: Bool {
         didSet {

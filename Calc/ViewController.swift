@@ -9,8 +9,13 @@
 import UIKit
 import AudioToolbox
 
+
 class ViewController: UIViewController {
 
+    // MARK: - Outlets
+
+    // The only reason to have individually addressable outlets is so that the app
+    // can emulate the highlighting behavior of the original  app
     @IBOutlet var acButton: HighlightableButton!
     @IBOutlet var signChangeButton: HighlightableButton!
     @IBOutlet var pctButton: HighlightableButton!
@@ -33,6 +38,7 @@ class ViewController: UIViewController {
     @IBOutlet var strLabel: UILabel!
     @IBOutlet var acLabel: UILabel!
 
+    // The Model Object
     let calculator = Calculator()
 
     override func viewDidLoad() {
@@ -65,6 +71,10 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    /// Examines the state machine to determine whether C or AC should be shown
+    ///
+    /// - returns: true if AC should be shown
+
     func shouldShowAC() -> Bool {
         if calculator.machine.state == .nothingEntered ||
         calculator.machine.state == .nothingEntered2 ||
@@ -74,28 +84,31 @@ class ViewController: UIViewController {
         return false
     }
 
-
+    /// This is the only IBAction linked to the buttons. The view controller examines the source button
+    /// and sends the appropriate keyPressed command to the calculator Model object
+    ///
+    /// - parameter sender: the button that was tapped
     @IBAction func handleButtonTap(_ sender: UIButton) {
         AudioServicesPlaySystemSound(1104)
-        if (sender == digit0) { calculator.keyPressed(.digit(0)) }
-        else if (sender == digit1) { calculator.keyPressed(.digit(1)) }
-        else if (sender == digit2) { calculator.keyPressed(.digit(2)) }
-        else if (sender == digit3) { calculator.keyPressed(.digit(3)) }
-        else if (sender == digit4) { calculator.keyPressed(.digit(4)) }
-        else if (sender == digit5) { calculator.keyPressed(.digit(5)) }
-        else if (sender == digit6) { calculator.keyPressed(.digit(6)) }
-        else if (sender == digit7) { calculator.keyPressed(.digit(7)) }
-        else if (sender == digit8) { calculator.keyPressed(.digit(8)) }
-        else if (sender == digit9) { calculator.keyPressed(.digit(9)) }
-        else if (sender == point) { calculator.keyPressed(.point) }
-        else if (sender == equalButton) { calculator.keyPressed(.equal) }
-        else if (sender == addButton) { calculator.keyPressed(.calcOperator(.add)) }
-        else if (sender == subtractButton) { calculator.keyPressed(.calcOperator(.subtract)) }
-        else if (sender == multiplyButton) { calculator.keyPressed(.calcOperator(.multiply)) }
-        else if (sender == divideButton) { calculator.keyPressed(.calcOperator(.divide)) }
-        else if (sender == signChangeButton) { calculator.keyPressed(.transformer(.signChange)) }
-        else if (sender == pctButton) { calculator.keyPressed(.transformer(.percent)) }
-        else if (sender == acButton) {
+        if sender == digit0 { calculator.keyPressed(.digit(0)) }
+        else if sender == digit1 { calculator.keyPressed(.digit(1)) }
+        else if sender == digit2 { calculator.keyPressed(.digit(2)) }
+        else if sender == digit3 { calculator.keyPressed(.digit(3)) }
+        else if sender == digit4 { calculator.keyPressed(.digit(4)) }
+        else if sender == digit5 { calculator.keyPressed(.digit(5)) }
+        else if sender == digit6 { calculator.keyPressed(.digit(6)) }
+        else if sender == digit7 { calculator.keyPressed(.digit(7)) }
+        else if sender == digit8 { calculator.keyPressed(.digit(8)) }
+        else if sender == digit9 { calculator.keyPressed(.digit(9)) }
+        else if sender == point { calculator.keyPressed(.point) }
+        else if sender == equalButton { calculator.keyPressed(.equal) }
+        else if sender == addButton { calculator.keyPressed(.calcOperator(.add)) }
+        else if sender == subtractButton { calculator.keyPressed(.calcOperator(.subtract)) }
+        else if sender == multiplyButton { calculator.keyPressed(.calcOperator(.multiply)) }
+        else if sender == divideButton { calculator.keyPressed(.calcOperator(.divide)) }
+        else if sender == signChangeButton { calculator.keyPressed(.transformer(.signChange)) }
+        else if sender == pctButton { calculator.keyPressed(.transformer(.percent)) }
+        else if sender == acButton {
             if self.shouldShowAC() {
                 calculator.keyPressed(.allClear)
             }
@@ -112,6 +125,7 @@ class ViewController: UIViewController {
         }
     }
 
+    /// Clears the highlight status of the command buttons and displays AC or C as appropriate
     func refresh() {
         strLabel.text = calculator.str
         if self.shouldShowAC() {

@@ -8,6 +8,9 @@
 
 import Foundation
 
+/// This is the main model code. The calculator contains a specific instance of the generic StateMachine class
+
+/// A kind of transition. An operator can be one of add, subtract, multiply, or divide
 enum CalcOperator: Int {
     case add
     case subtract
@@ -15,12 +18,37 @@ enum CalcOperator: Int {
     case divide
 }
 
+/// A kind of transition. A transformer can be a percent sign or a signChange (+/-) transformer
 enum Transformer: Int {
     case percent
     case signChange
 }
 
+/// Calculator transitions. There are several different types: digits, commands, operators, etc.
 enum Transition: Hashable {
+
+    /// the numbers 0-9
+    case digit(Double)
+
+    /// one of the operators that are supported by this calculator
+    case calcOperator(CalcOperator)
+
+    /// one of the transformers that are supported by this calculator
+    case transformer(Transformer)
+
+    /// the equal (=) button
+    case equal
+
+    /// C
+    case clear
+
+    /// AC
+    case allClear
+
+    /// The decimal point
+    case point
+
+    /// support for Hashable
     var hashValue: Int {
         switch self {
         case .digit(let digit):
@@ -40,6 +68,7 @@ enum Transition: Hashable {
         }
     }
 
+    /// support for Hashable
     static func ==(lhs: Transition, rhs: Transition) -> Bool {
         switch (lhs, rhs) {
         case (.digit(let d1), .digit(let d2)) :
@@ -61,16 +90,9 @@ enum Transition: Hashable {
         }
     }
 
-    case digit(Double)
-    case calcOperator(CalcOperator)
-    case transformer(Transformer)
-    case equal
-    case clear
-    case allClear
-    case point
-
 }
 
+/// The various states in a traditional calculator app
 enum State {
     case nothingEntered
     case nothingEnteredNegative
@@ -92,9 +114,12 @@ enum State {
     case doneEntering3
 }
 
+/// a transition function alias
 typealias CalcTransitionFunction = TransitionFunction<State, Transition>
 
 
+/// The main calculator class. This class contains a specific instance of a state machine.
+/// All the states and transitions between them are created in the initializer, so an initialized calculator object is guaranteed to be well-formed and ready for use.
 class Calculator {
     var implicit: Double
     var lastOperand: Double?
@@ -119,6 +144,7 @@ class Calculator {
         str = "0"
         plainStr = "0"
 
+        // MARK: Convenience methods
         let addFirstDigit: CalcTransitionFunction = { (_, transition) in
             if case let .digit(digit) = transition {
                 self.str = "\(Int(digit))"
@@ -213,6 +239,7 @@ class Calculator {
             }
         }
 
+        /// There are three place where numbers are 'gathered'. This convenience function makes sure that all necessary cases are handled.
         func createNumberGatherer(ne: State, neNeg: State, ebp: State, eap: State, done: State, doneFunction: @escaping CalcTransitionFunction) {
             machine.add(transition: .transformer(.signChange), from: ne, to: neNeg, performing: neToNeNeg)
             machine.add(transition: .transformer(.signChange), from: neNeg, to: ne, performing: neNegToNe)
@@ -277,6 +304,7 @@ class Calculator {
             self.plainStr = "\(self.displayed)"
         }
 
+        /// second number gatherer
         createNumberGatherer(ne: .nothingEntered2, neNeg: .nothingEntered2Negative, ebp: .entering2BeforePoint, eap: .entering2AfterPoint, done: .doneEntering2, doneFunction: secondOperandDone)
 
         let equalFunctionTwoOperands: CalcTransitionFunction = { (_,_) in

@@ -12,6 +12,10 @@ extension UIColor {
 
     // via https://stackoverflow.com/a/33397427
 
+    /// Creates a UIColor based on the given hex string.
+    ///
+    /// - parameter hexString: Can be 3 characters (e.g. F00), 6 characters (e.g. FF0000), or 8 characters (e.g. FF0000XX where the XX specify the alpha value). Defaults to black.
+    /// - returns: a UIColor
     convenience init(hexString: String?) {
         let hexStringUnwrapped = hexString ?? "000000"
         let hex = hexStringUnwrapped.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
