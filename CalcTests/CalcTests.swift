@@ -371,6 +371,12 @@ class CalcTests: XCTestCase {
         XCTAssert(c.displayed == 7)
         XCTAssert(c.str == "7")
 
+        c.keyPressed(.digit(4))
+        c.keyPressed(.equal)
+        XCTAssert(c.displayed == 7)
+        XCTAssert(c.str == "7")
+
+
         c.keyPressed(.digit(5))
         c.keyPressed(.equal)
         XCTAssert(c.displayed == 8)

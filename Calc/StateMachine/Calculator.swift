@@ -161,12 +161,6 @@ class Calculator {
             self.displayed = 0
         }
 
-        let clearSecondOperand: CalcTransitionFunction = { (_, _) in
-            self.str = "0"
-            self.plainStr = "0"
-            self.displayed = 0
-        }
-
         let neToNeNeg: CalcTransitionFunction = { (_, _) in
             self.str = "-0"
             self.plainStr = "-0"
@@ -181,7 +175,7 @@ class Calculator {
 
         let neNegToEnteringBeforePoint: CalcTransitionFunction = { (_, transition) in
             if case let .digit(digit) = transition {
-                self.str = "-\(digit)"
+                self.str = "-\(Int(digit))"
                 self.plainStr = self.str
                 self.displayed = Double(self.plainStr)!
             }
@@ -227,7 +221,7 @@ class Calculator {
             machine.add(transition: .point, from: ne, to: eap, performing: neToEAP)
             machine.add(transition: .point, from: ebp, to: eap, performing: ebpToEap)
             machine.add(transition: .clear, from: ebp, to: ne, performing: reset)
-            machine.add(transition: .clear, from: ebp, to: neNeg, performing: reset)
+            machine.add(transition: .clear, from: eap, to: ne, performing: reset)
 
 
             for i in 1 ... 9 {
@@ -260,6 +254,7 @@ class Calculator {
         }
 
 
+        machine.add(transition: .clear, from: .acceptedOperand1, to: .acceptedOperand1Cleared, performing: reset)
 
         machine.add(transition: .digit(0), from: .acceptedOperand1, to: .nothingEntered2, performing: reset)
         machine.add(transition: .digit(0), from: .acceptedOperand1Cleared, to: .nothingEntered2, performing: reset)
@@ -396,9 +391,18 @@ class Calculator {
             machine.add(transition: .calcOperator(oper), from: .entering3AfterPoint, to: .acceptedOperand1, performing: acceptFirstOperand )
         }
 
-        machine.add(transition: .equal, from: .entering3BeforePoint, to: .acceptedOperand1, performing: repeatedEqual )
-        machine.add(transition: .equal, from: .entering3AfterPoint, to: .acceptedOperand1, performing: repeatedEqual )
+        machine.add(transition: .equal, from: .entering3BeforePoint, to: .operationCompleted, performing: repeatedEqual )
+        machine.add(transition: .equal, from: .entering3AfterPoint, to: .operationCompleted, performing: repeatedEqual )
 
+
+
+        machine.add(transition: .clear, from: .nothingEntered2, to: .acceptedOperand1Cleared, performing: reset)
+        machine.add(transition: .clear, from: .nothingEntered2Negative, to: .acceptedOperand1Cleared, performing: reset)
+
+        machine.add(transition: .clear, from: .nothingEntered3, to: .acceptedOperand1Cleared, performing: reset)
+        machine.add(transition: .clear, from: .nothingEntered3Negative, to: .acceptedOperand1Cleared, performing: reset)
+
+        machine.add(transition: .clear, from: .operationCompleted, to: .acceptedOperand1Cleared, performing: reset)
 
 ////////////
         // =
