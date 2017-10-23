@@ -367,6 +367,21 @@ class Calculator {
             self.implicit = self.lastOperand!
         }
 
+        let nextOperation: TransitionFunction<State, Transition> = { (machine, transition) in
+            if self.lastOperand == nil {
+                self.lastOperand = self.displayed
+            }
+            equalHelper()
+            self.implicit = self.lastOperand!
+
+            if case let .calcOperator(oper) = transition {
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
+
+        }
+
         machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
         machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionChangingLastOperand )
         machine.add(transition: .equal, from: .acceptedOperand1, to: .acceptedOperand1, performing: repeatedEqual )
@@ -423,6 +438,11 @@ class Calculator {
         // copy everything from .acceptedOperand1 to .acceptedOperand1Cleard with the exception of .clear
 
 
+        // sequences of operations
+        for oper in ops {
+            machine.add(transition: .calcOperator(oper), from: .entering2BeforePoint, to: .acceptedOperand1, performing: nextOperation )
+            machine.add(transition: .calcOperator(oper), from: .entering2AfterPoint, to: .acceptedOperand1, performing: nextOperation )
+        }
 
 
     }
