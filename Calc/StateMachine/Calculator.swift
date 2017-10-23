@@ -89,6 +89,7 @@ enum State {
     case nothingEntered3Negative
     case entering3BeforePoint
     case entering3AfterPoint
+    case doneEntering3
 }
 
 typealias CalcTransitionFunction = TransitionFunction<State, Transition>
@@ -347,8 +348,35 @@ class Calculator {
         machine.add(transition: .equal, from: .operationCompleted, to: .operationCompleted, performing: repeatedEqual )
 
         // sequences
-        machine.add(transition: .equal, from: .entering2BeforePoint, to: .acceptedOperand1, performing: equalFunctionTwoOperands )
-        machine.add(transition: .equal, from: .entering2AfterPoint, to: .acceptedOperand1, performing: equalFunctionTwoOperands )
+        let nextOperation: TransitionFunction<State, Transition> = { (machine, transition) in
+            self.lastOperand = self.displayed
+            var answer: Double = 0
+            if let lastOp = self.lastOperator {
+                switch lastOp {
+                case .add:
+                    answer = self.implicit + self.displayed
+                case .subtract:
+                    answer = self.implicit - self.displayed
+                case .multiply:
+                    answer = self.implicit * self.displayed
+                case .divide:
+                    answer = self.implicit / self.displayed
+                }
+            }
+            self.displayAnswer(answer)
+
+            if case let .calcOperator(oper) = transition {
+                self.lastOperator = oper
+                self.implicit = self.displayed
+                self.lastOperand = nil
+            }
+
+        }
+
+        for oper in ops {
+            machine.add(transition: .calcOperator(oper), from: .entering2BeforePoint, to: .acceptedOperand1, performing: nextOperation )
+            machine.add(transition: .calcOperator(oper), from: .entering2AfterPoint, to: .acceptedOperand1, performing: nextOperation )
+        }
 
 
 ////////////
@@ -379,20 +407,6 @@ class Calculator {
             self.implicit = self.lastOperand!
         }
 
-        let nextOperation: TransitionFunction<State, Transition> = { (machine, transition) in
-            if self.lastOperand == nil {
-                self.lastOperand = self.displayed
-            }
-            equalHelper()
-            self.implicit = self.lastOperand!
-
-            if case let .calcOperator(oper) = transition {
-                self.lastOperator = oper
-                self.implicit = self.displayed
-                self.lastOperand = nil
-            }
-
-        }
 
 
 
@@ -419,10 +433,10 @@ class Calculator {
 
 
         // sequences of operations
-        for oper in ops {
-            machine.add(transition: .calcOperator(oper), from: .entering2BeforePoint, to: .acceptedOperand1, performing: nextOperation )
-            machine.add(transition: .calcOperator(oper), from: .entering2AfterPoint, to: .acceptedOperand1, performing: nextOperation )
-        }
+//        for oper in ops {
+//            machine.add(transition: .calcOperator(oper), from: .entering2BeforePoint, to: .acceptedOperand1, performing: nextOperation )
+//            machine.add(transition: .calcOperator(oper), from: .entering2AfterPoint, to: .acceptedOperand1, performing: nextOperation )
+//        }
 
 
     }

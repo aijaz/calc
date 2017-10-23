@@ -1036,6 +1036,8 @@ class CalcTests: XCTestCase {
 
     }
 
+    
+
     func testNextOperation() {
         let c = Calculator()
 
