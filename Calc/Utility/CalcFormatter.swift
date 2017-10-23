@@ -38,10 +38,7 @@ struct CalcFormatter {
     /// - returns: A string representation of the number
     /// - warning: The resulting string is for human consumption and will almost certainly not be parseable as a number
     static func string(for number: Double) -> String? {
-        if abs(number) <= 0.00000001 {
-            return scientificNumberFormatter.string(from: NSNumber(value: number))
-        }
-        else if Int(abs(number)+0.5) <= 999_999_999 {
+        if Int(abs(number)+0.5) <= 999_999_999 {
             return numberFormatter.string(from: NSNumber(value: number))
         }
         else if abs(number) < 1e100 {
