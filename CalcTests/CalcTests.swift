@@ -1102,6 +1102,35 @@ class CalcTests: XCTestCase {
 
     }
 
+    func testOverflow () {
+        let c = Calculator()
+
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+        c.keyPressed(.digit(5))
+
+        c.keyPressed(.calcOperator(.multiply))
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        c.keyPressed(.equal)
+        XCTAssert(c.str == "Error")
+
+    }
+
     func assertNumber(_ number: Double, _ str: String?) {
         let s = CalcFormatter.string(for: number)
         NSLog("Testing \(number) Got '\(s ?? "nil")', expected \(str ?? "nil")")
